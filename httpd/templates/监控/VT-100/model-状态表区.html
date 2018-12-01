@@ -1,0 +1,39 @@
+<table class="table table-bordered table-condensed">
+    <caption>工作状态</caption>
+    <tr>
+        <th>制冷输出</th>
+        <td class="text-center" id="s1">关闭</td>
+
+        <th>加热输出</th>
+        <td class="text-center" id="s2">关闭</td>
+    </tr>
+
+    <tr>
+        <th>循环输出</th>
+        <td class="text-center" id="s3">关闭</td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $.lijie.bind('dev', function (dev) {
+            if ( dev.data.s1 ) {
+                $("#s1").html("已开启");
+            } else {
+                $("#s1").html("已关闭");
+            }
+
+            if ( dev.data.s2 ) {
+                $("#s2").html("已开启");
+            } else {
+                $("#s2").html("已关闭");
+            }
+
+            if ( dev.data.s3 ) {
+                $("#s3").html("已开启");
+            } else {
+                $("#s3").html("已关闭");
+            }
+        });
+
+    });
+</script>

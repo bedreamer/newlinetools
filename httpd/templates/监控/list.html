@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-列表视图</title>
+    {% include "base-head.html" %}
+
+    <script src="/static/js/raphael-2.1.4.min.js"></script>
+    <script src="/static/js/justgage-1.0.1.js"></script>
+    <script src="/static/lj/gateway.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.lijie.init({{ sid }});
+        });
+    </script>
+    <script src="/static/lj/list.js"></script>
+
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+    <div class="container-fluid">
+        {% include "监控/base-视图选择.html" %}
+
+        <div class="row">
+            <div class="col-xs-1">
+                <hr>
+            </div>
+            <div class="col-xs-3 col-sm-2 col-md-1 text-center boxed">
+                <h6><span class="glyphicon glyphicon-eye-open"></span> 监视区</h6>
+            </div>
+            <div class="col-xs-8 col-sm-9 col-md-10">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-6">
+                <table class="table table-condensed table-bordered table-hover">
+                    <caption><strong><span class="id_modbus_dev_model"></span></strong> 通用寄存器列表</caption>
+                    <tr>
+                        <th>#</th>
+                        <th>名称</th>
+                        <th>地址</th>
+                        <th>倍率</th>
+                        <th>权限</th>
+                        <th>当前值</th>
+                        <th>单位</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for name, reg in registers_list.items %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ name }}</td>
+                        <td class="text-center">{{ reg.address }}</td>
+                        <td class="text-center">{{ reg.resolution }}</td>
+                        <td class="text-center">{{ reg.mode }}</td>
+                        <td class="text-center"></td>
+                        <td class="text-center">{{ reg.unit }}</td>
+                        <td class="text-center">
+                            {% if reg.mode == '只写' or reg.mode == '读写' %}
+                            <span class="glyphicon glyphicon-send text-primary"></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="col-xs-offset-1 col-xs-3">
+                <table class="table table-condensed table-bordered table-hover">
+                    <caption><strong><span class="id_modbus_dev_model"></span></strong> 状态寄存器</caption>
+                    <tr>
+                        <th>#</th>
+                        <th>名称</th>
+                        <th>值</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for name, reg in registers_list.items %}
+                    <tr>
+                        <th>{{ forloop.counter }}</th>
+                        <td>{{ name }}</td>
+                        <td class="text-center">{{ reg.address }}</td>
+                        <td class="text-center">{{ reg.resolution }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    {% include "base-navbar-bottom.html" %}
+    {% include "base-tail.html" %}
+</body>
+</html>

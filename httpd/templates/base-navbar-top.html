@@ -1,0 +1,53 @@
+<nav class="navbar navbar-default navbar-sm navbar-static-top">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-2">
+                <img src="/static/imgs/logo.png" height="30px;" />
+            </div>
+
+            <div class="col-xs-10">
+                <div class="row">
+                    <div class="col-xs-12 text-right">
+                        {% if request.path != '/' %}
+                        <a class="btn btn-xs btn-danger session-stop"><span class="link glyphicon glyphicon-off"></span></a>
+                        <a class="btn btn-xs btn-primary session-refresh"><span class="glyphicon glyphicon-refresh"></span></a>
+                        <span class="divider"></span>
+                        <a class="btn btn-xs btn-success play" style="display: none"><span class="link glyphicon glyphicon-play"></span></a>
+                        <a class="btn btn-xs btn-warning pause"><span class="link glyphicon glyphicon-pause"></span></a>
+                        <span class="divider"></span>
+                        <a class="btn btn-xs btn-default" role="button"><span class="glyphicon glyphicon-info-sign"></span></a>
+                        {% endif %}
+                        <span><small>软件版本:</small> <b>v1.1</b></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<script>
+    $(document).ready(function () {
+        $(".session-stop").click(function () {
+            window.location = '/monitor/{{ sid }}/stop/';
+        });
+
+        $(".session-refresh").click(function () {
+            $.lijie.query();
+        });
+
+        $(".play").click(function () {
+            $(".play").hide();
+            $(".pause").show();
+            $.lijie.begin_query();
+        });
+
+        $(".pause").click(function () {
+            $(".play").show();
+            $(".pause").hide();
+            $.lijie.pause_query();
+        });
+
+        $(".session-info").click(function () {
+            $("#infomation").popover();
+        });
+    });
+</script>

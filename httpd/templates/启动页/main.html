@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>调试软件</title>
+    {% include "base-head.html" %}
+    <style>
+        select {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 30px;
+        }
+
+        option {
+            text-align: right;
+        }
+
+    </style>
+
+    <script>
+        $(function () {
+            $("select").bind("change", function () {
+                var all = $("select");
+                var pa = new Array();
+                for ( var i = 0; i < all.length; i ++) {
+                    var s = all[i];
+                    var name = $(s).attr('name');
+                    var val = $(s).find("option:selected").val();
+                    if ( val === undefined ) {
+                        val = ''
+                    }
+                    pa.push(name + '=' + val);
+                }
+                pa.join('&');
+                console.log(pa.join('&'));
+                window.location = '{{ request.path }}' + '?' + encodeURI(pa.join('&'));
+            });
+        });
+    </script>
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container-fluid">
+
+        {% if request.GET.e %}
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong>&nbsp;&nbsp;&nbsp;<span>{{ request.GET.e }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-xs-offset-1 col-xs-10">
+            <div class="row">
+                <h2>
+                    <span class="glyphicon glyphicon-cog text-primary"></span>
+                    设备通道配置
+                </h2>
+                <hr>
+            </div>
+
+            <form method="post" action="{{ request.path }}">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-2 withunderline">
+                                <h4><span class="label label-success">B M S</span></h4>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label>型号</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-9">
+                                <select name="bms_model">
+                                    {% for bms in bms_supported_model_list %}
+                                        <option value="{{ bms.id }}" {% if bms_model == bms.id %}selected{% endif %}>{{ bms.model }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                                {% if bms_model %}
+                                <a class="btn btn-default btn-block btn-sm"><span class="glyphicon glyphicon-edit"></span></a>
+                                {% endif %}
+                            </div>
+                            <div class="col-xs-2">
+                                <a class="btn btn-info btn-block btn-sm">添加...</a>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <label>CAN卡:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>设备号:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>通道:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>波特率:&nbsp;</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <select name="bms_can_model">
+                                    {% for can in bms_supported_can_model_list %}
+                                        <option value="{{ can }}" {% if bms_can_model == can %}selected{% endif %}>{{ can }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <select name="bms_can_idx">
+                                    {% for idx in bms_can_supported_idx_list %}
+                                        <option value="{{ idx }}" {% if idx == bms_can_idx %}selected{% endif %}>{{ idx|add:1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <select name="bms_can_channel">
+                                    {% for ch in bms_can_supported_channel_list %}
+                                        <option value="{{ ch }}" {% if ch == bms_can_channel %}selected{% endif %}>{{ ch|add:1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-3">
+                                <select name="bms_can_bps">
+                                    {% for bps in bms_supported_bps_list %}
+                                        <option value="{{ bps }}" {% if bps == bms_can_bps %}selected{% endif %}>{{ bps }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row"><h4>&nbsp;</h4></div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <h4><span class="label label-success">恒温/压设备</span></h4>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <label>型号</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-9">
+                                <select name="modbus_dev_model">
+                                    {% for dev in modbus_supported_dev_model_list %}
+                                    <option value="{{ dev.id }}" {% if modbus_dev_model == dev.id %}selected{% endif %}>{{ dev.name }}-{{ dev.model }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                                {% if modbus_dev_model %}
+                                <a class="btn btn-default btn-block btn-sm" href="/admin/ui/modbusdevice/{{ modbus_dev_model }}/change/">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="col-xs-2">
+                                <a class="btn btn-info btn-block btn-sm" href="/admin/ui/modbusdevice/add/">添加...</a>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <label>CAN卡:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>设备号:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>通道:&nbsp;</label>
+                            </div>
+                            <div class="col-xs-2">
+                                <label>波特率:&nbsp;</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <select name="modbus_can_model">
+                                    {% for can in modbus_supported_can_model_list %}
+                                        <option value="{{ can }}" {% if modbus_can_model == can %}selected{% endif %}>{{ can }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <select name="modbus_can_idx">
+                                    {% for idx in modbus_can_supported_idx_list %}
+                                        <option value="{{ idx }}" {% if idx == modbus_can_idx %}selected{% endif %}>{{ idx|add:1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-2">
+                                <select name="modbus_can_channel">
+                                    {% for ch in modbus_can_supported_channel_list %}
+                                        <option value="{{ ch }}" {% if ch == modbus_can_channel %}selected{% endif %}>{{ ch|add:1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-xs-3">
+                                <select name="modbus_can_bps">
+                                    {% for bps in modbus_supported_bps_list %}
+                                        <option value="{{ bps }}" {% if bps == modbus_can_bps %}selected{% endif %}>{{ bps }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <h1>&nbsp;</h1>
+                <div class="row">
+                    <!--div class="col-xs-2">
+                        <a class="btn btn-warning btn-sm btn-block">
+                            <span class="glyphicon glyphicon-open-file"></span>
+                            加载配置
+                        </a>
+                    </div>
+                    <div class="col-xs-2">
+                        <a class="btn btn-danger btn-sm btn-block">
+                            <span class="glyphicon glyphicon-save-file"></span>
+                            保存配置
+                        </a>
+                    </div-->
+                    <div class="col-xs-offset-3 col-xs-5">
+                        <input type="submit" value="开始" class="btn btn-primary btn-lg btn-block glyphicon glyphicon-send"></input>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <script src="/static/js/bootstrap.js"></script>
+</body>
+</html>

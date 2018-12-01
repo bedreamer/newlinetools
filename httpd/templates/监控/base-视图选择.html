@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="col-xs-11 text-right">
+        <div class="btn-group btn-group-xs">
+            <button type="button" onclick="window.location='/monitor/{{ sid }}/panel/'"
+                    class="btn {% if session.mode == 'panel' %}btn-primary{% else %}btn-default{% endif %}">面板视图</button>
+
+            <button type="button" onclick="window.location='/monitor/{{ sid }}/grid/'"
+                    class="btn {% if session.mode == 'grid' %}btn-primary{% else %}btn-default{% endif %}">曲线视图</button>
+
+            <button type="button" onclick="window.location='/monitor/{{ sid }}/list/'"
+                    class="btn {% if session.mode == 'list' %}btn-primary{% else %}btn-default{% endif %}">列表视图</button>
+
+            <button type="button" onclick="window.location='/monitor/{{ sid }}/options/'"
+                    class="btn {% if session.mode == 'options' %}btn-primary{% else %}btn-default{% endif %}">会话配置</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设备列表</title>
+    {% include "base-head.html" %}
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container">
+        <div class="col-xs-offset-1 col-xs-10">
+            <div class="row">
+                <h2 class="text-primary">
+                    <span class="glyphicon glyphicon-plane"></span>
+                    全部支持MODBUS的设备列表
+                </h2>
+                <hr>
+            </div>
+
+            <div class="row">
+                <table class="table table-bordered table-striped table-hover">
+                    <caption>
+                        <div class="row">
+                           <div class="col-lg-6">
+                               设备列表
+                           </div>
+                           <div class="col-lg-6 text-right">
+                               <div class="row">
+                                   <div class="col-xs-offset-6 col-xs-6">
+                                       <a class="btn btn-danger btn-xs">
+                                           <span class="glyphicon glyphicon-erase"> 清空列表</span>
+                                       </a>
+                                       <a class="btn btn-success btn-xs" href="/modbusdevice/new/">
+                                           <span class="glyphicon glyphicon-plus"> 新增设备</span>
+                                       </a>
+                                   </div>
+                               </div>
+                           </div>
+                        </div>
+                    </caption>
+                    <tr>
+                        <th>#</th>
+                        <th>名称</th>
+                        <th>型号</th>
+                        <th>删除</th>
+                        <th>编辑</th>
+                    </tr>
+                    {% for dev in dev_list %}
+                    <tr>
+                        <th>{{ dev.id }}</th>
+                        <th>{{ dev.name }}</th>
+                        <th>{{ dev.model }}</th>
+                        <td>
+                            <a class="btn btn-danger btn-xs btn-block" href="/modbusdevice/{{ dev.id }}/delete/">
+                                <span class="glyphicon glyphicon-remove"> 删除</span>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="btn btn-success btn-xs btn-block" href="/modbusdevice/{{ dev.id }}/edit/">
+                                <span class="glyphicon glyphicon-edit"> 编辑</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

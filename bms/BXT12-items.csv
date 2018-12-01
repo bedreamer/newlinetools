@@ -1,0 +1,7 @@
+id,key,name,bit_offset,bit_width,to_display,to_can
+0,temp,温度,0,16,v/10,int(v*10)
+1,voltage,电压,0,16,v/10,int(v*10)
+2,max_temp,最高温度,0,16,v/10,int(v*10)
+3,min_temp,最低温度,0,16,v/10,int(v*10)
+4,allow,允许加热,0,1,v,v
+

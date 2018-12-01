@@ -1,0 +1,89 @@
+{
+  "name": "自动控制模式",
+  "main": "step1",
+  "steps": {
+    "step1": {
+      "mode": "自动模式",
+      "liuliang": 10,
+      "wendu": 25,
+      "jiaregonglv": -1,
+      "xunhuan": "内循环",
+      "ttl": 3600,
+      "tiaojian": [
+        "newline.flow",
+        ">",
+        "100",
+        "or",
+        "bms.temp",
+        ">",
+        "65"
+      ],
+      "true": "$auto",
+      "false": "$auto"
+    },
+    "step2": {
+      "mode": "自动模式",
+      "liuliang": 20,
+      "wendu": 20,
+      "jiaregonglv": -1,
+      "xunhuan": "内循环",
+      "ttl": 3600,
+      "tiaojian": [
+        "newline.temp",
+        ">",
+        "100"
+      ],
+      "true": "$auto",
+      "false": "$auto"
+    },
+    "step3": {
+      "mode": "自动模式",
+      "liuliang": 30,
+      "wendu": 15,
+      "jiaregonglv": -1,
+      "xunhuan": "内循环",
+      "ttl": 3600,
+      "tiaojian": [
+        "newline.temp",
+        ">",
+        "100",
+        "and",
+        "newline.flow",
+        ">",
+        "200"
+      ],
+      "true": "$auto",
+      "false": "$auto"
+    },
+    "step4": {
+      "mode": "自动模式",
+      "liuliang": null,
+      "wendu": null,
+      "jiaregonglv": null,
+      "xunhuan": null,
+      "ttl": -1,
+      "tiaojian": [
+        "self.loop",
+        ">=",
+        "10000"
+      ],
+      "true": "$auto",
+      "false": "step1"
+    },
+    "step5": {
+      "mode": "自动模式",
+      "liuliang": 34,
+      "wendu": 56,
+      "jiaregonglv": null,
+      "xunhuan": null,
+      "ttl": -1,
+      "tiaojian": [
+        "bms.temp",
+        ">=",
+        "10"
+      ],
+      "true": "$auto",
+      "false": "step1"
+    }
+  }
+}

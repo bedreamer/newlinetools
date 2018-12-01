@@ -1,0 +1,10 @@
+{
+  "id": 0,
+  "name": "root",
+  "alias": "超级管理员",
+  "is_root": true,
+  "is_admin": true,
+  "is_staff": true,
+  "login_refuse": false,
+  "passwd": "e10adc3949ba59abbe56e057f20f883e"
+}

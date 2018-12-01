@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工步编辑页面</title>
+    {% include "base-head.html" %}
+    <script>
+
+        function append_step_to_table(name, step) {
+            var html = '<tr class="text-center">';
+            html += '<td id="id_' + name + '">-</td>';
+            html += '<td>' + name + '</td>';
+            html += '<td>' + step.mode + '</td>';
+            html += '<td>' + step.liuliang + '</td>';
+            html += '<td>' + step.wendu + '</td>';
+            html += '<td>' + step.jiaregonglv + '</td>';
+            html += '<td>' + step.xunhuan + '</td>';
+            html += '<td>' + step.ttl + '</td>';
+            html += '<td>' + step.tiaojian.join(' ') + '</td>';
+            html += '<td>' + step.true + '</td>';
+            html += '<td>' + step.false + '</td>';
+            html += '<td><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>&nbsp;<button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span></button></td>';
+            html += '</tr>';
+
+            $("#id_steps_list").append(html);
+        }
+
+        $(document).ready(function () {
+            api.ready(function () {
+                // 用这个接口可以获取工步列表
+                newline.get_steps(function (data) {
+                    console.log('get_steps success return:', data);
+                    for ( step in data.steps ) {
+                        append_step_to_table(step, data.steps[step]);
+                    }
+                }, function (response) {
+                    console.log('get_steps return fail, response=', response)
+                });
+            });
+
+            api.on_push_request = function (self, request) {
+                // {{
+                if ( request.data.path === '/newline/yx/' ) {
+                    var data = request.data.yx;
+                    /**/
+                    $("#error").html("guzhang.")
+                } else if ( request.data.path === '/newline/yc/' ) {
+                    var data = request.data.yc;
+                } else if ( request.data.path === '/bms/yx/' ) {
+                    var data = request.data.yx;
+                    /**/
+                    $("#error").html("guzhang.")
+                } else if ( request.data.path === '/bms/yc/' ) {
+                    var data = request.data.yc;
+                } else if ( request.data.path === '/newline/step/changed/' ) {
+                    var old_step = request.data.old;
+                    var new_step = request.data.new;
+
+                    $("#id_" + old_step.name).html(old_step.loop);
+                    $("#id_" + new_step.name).html("<span class='glyphicon glyphicon-play'></span>" + new_step.loop);
+                }
+                // }}
+                return self.make_response_without_error_package(request, 'copy');
+            };
+        });
+    </script>
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container">
+        <table class="table table-bordered table-striped table-responsive" id="id_steps_list">
+            <caption>当前可编辑工步列表</caption>
+            <tr>
+                <th rowspan="2"><br>执行状态</th>
+                <th rowspan="2"><br>工步编号</th>
+                <th rowspan="2"><br>运行模式</th>
+                <th rowspan="2"><br>流量<br><small>(L/min)</small></th>
+                <th rowspan="2"><br>温度<br><small>(℃)</small></th>
+                <th rowspan="2"><br>加热功率<br><small>(%)</small></th>
+                <th rowspan="2"><br>循环方式</th>
+                <th rowspan="2"><br>运行时长<small><br>(秒)</small></th>
+                <th rowspan="2"><br>条件列表</th>
+                <th colspan="2">跳转控制</th>
+                <th rowspan="2"><br>工步编辑</th>
+            </tr>
+            <tr>
+                <th>不匹配</th>
+                <th>匹配</th>
+            </tr>
+        </table>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="text-danger">说明:</div>
+                <div class="text-danger">$auto跳转目标为自动确认，规则如下:</div>
+                <div class="text-danger">条件列表判断为<strong>真</strong>或运行时长超时自动转<strong>下一条</strong>工步</div>
+                <div class="text-danger">条件列表判断为<strong>假</strong>且运行时长未超时继续执行当前工步</div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/bootstrap.js" ></script>
+</body>
+</html>

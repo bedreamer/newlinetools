@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-面板视图</title>
+    {% include "base-head.html" %}
+
+    <script src="/static/js/raphael-2.1.4.min.js"></script>
+    <script src="/static/js/justgage-1.0.1.js"></script>
+    <script src="/static/lj/gateway.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.lijie.init({{ sid }});
+        });
+    </script>
+    <script src="/static/lj/panel.js"></script>
+
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+    <div class="container-fluid">
+        {% include "监控/base-视图选择.html" %}
+
+        <div class="row">
+            <div class="col-xs-5">
+                <hr>
+            </div>
+            <div class="col-xs-2 text-center boxed">
+                <h6>{{ modbus_dev.model }} 监控区</h6>
+            </div>
+            <div class="col-xs-5">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-5">
+                {% include model_恒温恒流设备_状态表区 %}
+            </div>
+            <div class="col-xs-7">
+                <br>
+                {% include model_恒温恒流设备_温度计区 %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-2">
+                <hr>
+            </div>
+            <div class="col-xs-1 text-center boxed">
+                <h6>控制区</h6>
+            </div>
+            <div class="col-xs-2">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                {% include model_恒温恒流设备_控制区 %}
+            </div>
+            <div class="col-xs-6">
+                {% include model_恒温恒流设备_仪表盘区 %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-5">
+                <hr>
+            </div>
+            <div class="col-xs-2 text-center boxed">
+                <h6>故障表</h6>
+            </div>
+            <div class="col-xs-5">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                {% include model_恒温恒流设备_故障显示区 %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-5">
+                <hr>
+            </div>
+            <div class="col-xs-2 text-center boxed">
+                <h6>BMS监视区</h6>
+            </div>
+            <div class="col-xs-5">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-5">
+                {% include model_BMS设备_状态表区 %}
+            </div>
+            <div class="col-xs-7">
+                <br>
+                {% include model_BMS设备_仪表盘区 %}
+            </div>
+        </div>
+
+    </div>
+
+    {% include "base-navbar-bottom.html" %}
+    {% include "base-tail.html" %}
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增设备</title>
+    {% include "base-head.html" %}
+    <script>
+        function add_register() {
+            var o = $('tr')[1];
+            var line = $(o).clone();
+            $('table>tbody').append(line);
+        }
+
+        function purge_register() {
+        }
+
+        function delete_register() {
+            $(this).parent().parent().parent().remove();
+        }
+    </script>
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container">
+        <div class="col-xs-offset-1 col-xs-10">
+            <div class="row">
+                <h2 class="text-primary">
+                    <span class="glyphicon glyphicon-plane"></span>
+                    新增MODBUS设备
+                </h2>
+                <hr>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <form method="post" action="{{ request.path }}">
+                        <div class="form-group">
+                            <label>设备名称</label>
+                            <input type="text" name="name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>设备型号</label>
+                            <input type="text" name="model" class="form-control">
+                        </div>
+
+                        <table class="table table-striped table-condensed table-bordered">
+                            <caption>
+                                <div class="row">
+                                   <div class="col-lg-6">
+                                       寄存器表
+                                   </div>
+                                   <div class="col-lg-6 text-right">
+                                       <div class="row">
+                                           <div class="col-xs-offset-6 col-xs-6">
+                                               <!--a class="btn btn-danger btn-xs" href="#">
+                                                   <span class="glyphicon glyphicon-erase"> 清空</span>
+                                               </a-->
+                                               <a class="btn btn-success btn-xs" href="javascript:add_register();">
+                                                   <span class="glyphicon glyphicon-plus"> 新增</span>
+                                               </a>
+                                           </div>
+                                       </div>
+                                   </div>
+                                </div>
+                            </caption>
+                            <tr>
+                                <th>寄存器名(*)</th>
+                                <th>可读</th>
+                                <th>可写</th>
+                                <th>符号</th>
+                                <th style="width: 100px;">地址(hex)</th>
+                                <th style="width: 60px;">单位</th>
+                                <th>精度</th>
+                                <!--th>操作</th-->
+                            </tr>
+                            <tr>
+                                <td><input class="form-control" type="text" name="r_name[]" /></td>
+                                <th><input type="checkbox" name="x03[]" style="font-size: 30px;" /></th>
+                                <th><input type="checkbox" name="x06[]" style="font-size: 30px;"/></th>
+                                <th><input type="checkbox" name="r_sign[]" style="font-size: 30px;"/></th>
+                                <th><input class="form-control" type="text" name="r_address[]" /></th>
+                                <th><input class="form-control" type="text" name="r_unit[]" /></th>
+                                <th>
+                                    <select name="r_resolution[]" style="height: 33px; width: 100%;">
+                                        <option value=1>x1</option>
+                                        <option value=1>x10</option>
+                                        <option value=1>x100</option>
+                                        <option value=1>x1000</option>
+                                        <option value=1>x10000</option>
+                                    </select>
+                                </th>
+                                <!--th>
+                                    <a href="javascript: delete_register()" class="text-danger" style="font-size: 26px;">
+                                        <span class="glyphicon glyphicon-remove-sign"></span>
+                                    </a>
+                                </th-->
+                            </tr>
+                        </table>
+
+                        <hr>
+                        <button type="submit" class="btn btn-success">增加</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

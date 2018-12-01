@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-面板视图</title>
+    {% include "base-head.html" %}
+
+    <script src="/static/js/raphael-2.1.4.min.js"></script>
+    <script src="/static/js/justgage-1.0.1.js"></script>
+    <script src="/static/lj/gateway.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.lijie.init({{ sid }});
+        });
+    </script>
+    <script src="/static/lj/panel.js"></script>
+
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+    <div class="container-fluid">
+        {% include "监控/base-视图选择.html" %}
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-4">
+                <hr>
+            </div>
+            <div class="col-xs-2 text-center boxed">
+                <h6>{{ modbus_dev.model }} 配置区</h6>
+            </div>
+            <div class="col-xs-4">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-3">
+                <table class="table table-condensed table-hover table-bordered">
+                    <caption>操作设备地址列表</caption>
+                    {% for counter in "12345" %}
+                    <tr><td>
+                        <div class="row">
+                            <div class="col-xs-offset-1 col-xs-1 text-center">
+                                {{ forloop.counter }}#
+                            </div>
+                            <div class="col-xs-10 text-right">
+                                <a class="btn btn-xs btn-danger">删除地址</a>
+                                <a class="btn btn-xs btn-default">设为默认地址</a>
+                            </div>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    {% include "base-navbar-bottom.html" %}
+    {% include "base-tail.html" %}
+</body>
+</html>

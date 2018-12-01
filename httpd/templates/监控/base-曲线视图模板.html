@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-面板视图</title>
+    {% include "base-head.html" %}
+
+    <script src="/static/js/raphael-2.1.4.min.js"></script>
+    <script src="/static/js/justgage-1.0.1.js"></script>
+    <script src="/static/lj/gateway.js"></script>
+    <script src="/static/js/Chart.bundle.js" ></script>
+    <script>
+        window.chartColors = {
+                red: "rgb(255, 99, 132)",
+                orange: "rgb(255, 159, 64)",
+                yellow: "rgb(255, 205, 86)",
+                green: "rgb(75, 192, 192)",
+                blue:"rgb(54, 162, 235)",
+                grey: "rgb(201, 203, 207)",
+                purple: "rgb(153, 102, 255)",
+            };
+        $(document).ready(function () {
+            $.lijie.init({{ sid }});
+        });
+    </script>
+    <script src="/static/lj/panel.js"></script>
+    <script>
+        $(document).ready(function () {
+            function draw_line(c, name, leg, lable, datasets, color) {
+                var ctx = document.getElementById(c).getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: lable,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: '时间轴'
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                position: 'left',
+                                id: 'y-axis-t1',
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Value'
+                                }
+                            },{
+                                display: true,
+                                position: 'right',
+                                id: 'y-axis-t2',
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Valu1e'
+                                },
+                                gridLines: {
+                                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                                },
+                            }]
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        title: {
+                            display: true,
+                            text: name
+                        },/*
+                        elements: {
+                            line: {
+                                tension: 0, // disables bezier curves
+                            }
+                        },*/
+                        animation: {
+                            duration: 0, // general animation time
+                        },
+                        hover: {
+                            animationDuration: 0, // duration of animations when hovering an item
+                        },
+                        // grid line settings
+                        gridLines: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        },
+                        responsiveAnimationDuration: 0, // animation duration after a resize
+                    }
+                });
+            }
+            var line_t1 = {
+                label: "t1",
+                data: {{ t1 }},
+                backgroundColor: window.chartColors.red,
+                borderColor: window.chartColors.red,
+                borderWidth: 1,
+                fill: false,
+                yAxisID: 'y-axis-t1',
+            };
+            var line_t2 = {
+                label: "t2",
+                data: {{ t2 }},
+                backgroundColor: window.chartColors.blue,
+                borderColor: window.chartColors.blue,
+                borderWidth: 1,
+                fill: false,
+                yAxisID: 'y-axis-t2',
+            };
+            var axis_x = {{ axis_x|safe }};
+
+            draw_line('id_grid_canvas', 'dd', 'dd', axis_x, [line_t1, line_t2], 'rgba(255,99,132,1)');
+        });
+    </script>
+
+
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+    <div class="container-fluid">
+        {% include "监控/base-视图选择.html" %}
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-4">
+                <hr>
+            </div>
+            <div class="col-xs-2 text-center boxed">
+                <h6>{{ modbus_dev.model }} 曲线显示区</h6>
+            </div>
+            <div class="col-xs-4">
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10">
+                <canvas id="id_grid_canvas" style="width: 100%; height: 500px;"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10">
+                <div id="h-slider" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            var t1 = {{ t1 }};
+            var t2 = {{ t2 }};
+            var axis_x = {{ axis_x|safe }};
+            var r_begin = {{ begin }};
+            var r_end = {{ end }};
+
+            var line_t1 = {
+                label: "t1",
+                data: t1,
+                backgroundColor: window.chartColors.red,
+                borderColor: window.chartColors.red,
+                borderWidth: 1,
+                fill: false,
+                yAxisID: 'y-axis-t1',
+            };
+            var line_t2 = {
+                label: "t2",
+                data: t2,
+                backgroundColor: window.chartColors.blue,
+                borderColor: window.chartColors.blue,
+                borderWidth: 1,
+                fill: false,
+                yAxisID: 'y-axis-t2',
+            };
+
+            var ctx = document.getElementById('id_grid_canvas').getContext('2d');
+            var config = {
+                type: 'line',
+                data: {
+                    labels: axis_x,
+                    datasets: [line_t1, line_t2]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '时间轴'
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            position: 'left',
+                            id: 'y-axis-t1',
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Value'
+                            }
+                        },{
+                            display: true,
+                            position: 'right',
+                            id: 'y-axis-t2',
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Valu1e'
+                            },
+                            gridLines: {
+                                drawOnChartArea: false, // only want the grid lines for one axis to show up
+                            },
+                        }]
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    title: {
+                        display: true,
+                        text: 'dd'
+                    },/*
+                    elements: {
+                        line: {
+                            tension: 0, // disables bezier curves
+                        }
+                    },*/
+                    animation: {
+                        duration: 0, // general animation time
+                    },
+                    hover: {
+                        animationDuration: 0, // duration of animations when hovering an item
+                    },
+                    // grid line settings
+                    gridLines: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    },
+                    responsiveAnimationDuration: 0, // animation duration after a resize
+                }
+            };
+            var myChart = new Chart(ctx, config);
+
+            var slide_over = true;
+            var show_count = {{ show_count }};
+            function update_grid(begin, end) {
+                if ( slide_over === false ) {
+                    return;
+                }
+                slide_over = false;
+                $.getJSON("http://127.0.0.1:8000/monitor/{{ sid }}/grid/json/?begin=" + begin + '&count=' + (end - begin + 1), '', function (data, status, xhr) {
+                    config.data.labels = data.data.axis_x;
+                    config.data.datasets = [data.data.t1, data.data.t2];
+                    myChart.update();
+                    slide_over = true;
+                }).fail(function () {
+                    slide_over = true;
+                });
+            }
+            var s_range = $('#h-slider').slider({
+                range: true,
+                max: {{ record_count }},
+                values: [ {{ begin }}, {{ end }} ],
+                slide: function (event, ui) {
+                    console.log(event);
+                    if ( event.ctrlKey ) {
+                        show_count = ui.values[1] - ui.values[0];
+                    } else {
+                        if ( ui.value === ui.values[0] ) {
+                            var x = ui.values;
+                            x[1] = x[0] + show_count;
+                            s_range.slider("values", x);
+                            //update_grid();
+                        } else {
+                            var x = ui.values;
+                            x[0] = x[1] - show_count;
+                            s_range.slider("values", x);
+                        }
+                        var begin = ui.values[0] < 0 ? 0 : ui.values[0];
+                        var end = ui.values[1] < 0 ? {{ record_count }} : ui.values[1];
+
+                        update_grid(begin, end);
+                    }
+                }
+            });
+        });
+    </script>
+
+    {% include "base-navbar-bottom.html" %}
+    {% include "base-tail.html" %}
+</body>
+</html>

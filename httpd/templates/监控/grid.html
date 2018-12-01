@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-曲线视图</title>
+    {% include "base-head.html" %}
+
+    <script src="/static/js/raphael-2.1.4.min.js"></script>
+    <script src="/static/js/justgage-1.0.1.js"></script>
+    <script src="/static/lj/gateway.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.lijie.init({{ sid }});
+            function beat() {
+                $(".glyphicon-heart").animate({fontSize: '14px'}, 'slow');
+                $(".glyphicon-heart").animate({fontSize: '10px'}, 'slow');
+            }
+
+            setInterval(beat, 1000);
+        });
+    </script>
+    <script src="/static/lj/jquery.modbus.js"></script>
+
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container-fluid">
+        {% include "监控/base-视图选择.html" %}
+
+        <span class="glyphicon glyphicon-heart text-danger text-center"></span>
+    </div>
+
+    {% include "base-navbar-bottom.html" %}
+    {% include "base-tail.html" %}
+</body>
+</html>

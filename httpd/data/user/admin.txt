@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "name": "admin",
+  "alias": "系统管理员",
+  "is_root": false,
+  "is_admin": true,
+  "is_staff": true,
+  "login_refuse": false,
+  "passwd": "a12345678"
+}

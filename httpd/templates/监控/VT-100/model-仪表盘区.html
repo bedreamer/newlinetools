@@ -1,0 +1,56 @@
+<div class="row">
+    <!--1/3-->
+    <div class="col-xs-4">
+        <div id="gauge1" style="width: 120px; height: 96px;"></div>
+    </div><!--1/3-->
+
+    <div class="col-xs-4">
+        <div id="gauge2" style="width: 120px; height: 96px;"></div>
+    </div>
+
+    <div class="col-xs-4">
+        <div id="gauge3" style="width: 120px; height: 96px;"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var p1 = null;
+        var p2 = null;
+        var f1 = null;
+
+        p1 = new JustGage({
+            id: "gauge1",
+            value: 0,
+            min: 0,
+            max: 3,
+            gaugeWidthScale: 0.6,
+            label: "bar",
+            title: "供液口压力(P1)"
+        });
+        p2 = new JustGage({
+            id: "gauge2",
+            value: 0,
+            min: 0,
+            max: 3,
+            gaugeWidthScale: 0.6,
+            label: "bar",
+            title: "回液口压力(P2)"
+        });
+        f1 = new JustGage({
+            id: "gauge3",
+            value: 0,
+            min: 0,
+            max: 3,
+            gaugeWidthScale: 0.6,
+            label: "L/min",
+            title: "供液口流量(F1)"
+        });
+
+        $.lijie.bind('dev', function (dev) {
+            p1.refresh(dev.data.p1);
+            p2.refresh(dev.data.p2);
+            f1.refresh(dev.data.f1);
+        });
+
+    });
+</script>
