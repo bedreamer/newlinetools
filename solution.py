@@ -136,6 +136,8 @@ class Solution:
         end_step = EndStep(idx)
         steps_list.append(end_step)
 
+        steps_list.sort(key=lambda x: x.name)
+
         main_step = None
         for step in steps_list:
             if step.name == steps['main']:
@@ -282,5 +284,7 @@ class Solution:
                 return "".join(["工步=", name, "的判定条件语法错误!"]), name
             except AttributeError as e:
                 return "".join(["工步=", name, "的判定条件属性筛选错误!"]), name
+            except Exception as e:
+                return "".join(["工步=", name, "检查失败!"]), name
 
         return True, ''
