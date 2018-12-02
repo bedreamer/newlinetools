@@ -19,13 +19,25 @@ class NewLineModbusDevice:
             value = eval(register.to_display)
             setattr(self, register.key, value)
 
-    def write_liuliang(self, liuliang):
+    def get_register(self, name):
+        for register in self.registers_list:
+            if name == register.name:
+                return register
+        return None
+
+    def write_liuliang(self, display_liuliang):
+        register = self.get_register('流量')
+        if register is None:
+            return
+
+        v = display_liuliang
+        modbus_value = eval(register.to_modbus)
+        self.driver.write_register(self.address, register.addr, modbus_value)
+
+    def write_wendu(self, display_wendu):
         pass
 
-    def write_wendu(self, wendu):
-        pass
-
-    def write_loop_mode(self, mode):
+    def write_loop_mode(self, display_mode):
         pass
 
     def __str__(self):
@@ -60,3 +72,44 @@ class Driver(NewLineDeviceDriver):
 
     def pack_all(self):
         return self.newline_devices_list[0]
+
+    def sync_value_immediately(self, step):
+        """
+        立即下发工步设定的输出值
+        :param step:
+        :return:
+        """
+        if isinstance(step.liuliang, float) or isinstance(step.liuliang, int):
+            liuliang = float(step.liuliang)
+        else:
+            liuliang = None
+
+        if isinstance(step.wendu, float) or isinstance(step.wendu, int):
+            wendu = float(step.wendu)
+        else:
+            wendu = None
+
+        if step.xunhuan == '内循环':
+            xunhuan = 0
+        elif step.xunhuan == '外循环':
+            xunhuan = 1
+        else:
+            xunhuan = None
+
+        newline_device = self.newline_devices_list[0]
+        if liuliang is not None:
+            newline_device.write_liuliang(liuliang)
+
+        if wendu is not None:
+            newline_device.write_wendu(wendu)
+
+        if xunhuan is not None:
+            newline_device.write_loop_mode(xunhuan)
+
+    def sync_value_period(self, step):
+        """
+        周期下发工步设置值
+        :param step:
+        :return:
+        """
+        print(step)

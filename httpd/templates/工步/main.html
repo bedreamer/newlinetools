@@ -5,7 +5,7 @@
     <title>工步编辑页面</title>
     {% include "base-head.html" %}
     <script>
-        var api = WsApi('/newline/step/','eyehuo.com:8888');
+        var api = WsApi('/newline/step/',window.location.host);
         var newline = NewLine(api);
 
         api.ready(function () {
@@ -34,7 +34,7 @@
                 console.log('get_single_step return fail, response=', response)
             });
         });
-
+/*
         api.ready(function () {
             // 用这个接口可以将工步保存为指定名称
             var step = {
@@ -54,7 +54,7 @@
                 console.log('step_save return fail, response=', response)
             });
         });
-
+*/
         api.ready(function () {
             newline.steps_check(function (data) {
                 console.log('check_steps success return:', data)
@@ -172,7 +172,12 @@
                     var new_step = request.data.new;
 
                     $("#id_" + old_step.name).html(old_step.loop);
-                    $("#id_" + new_step.name).html("<span class='glyphicon glyphicon-play'></span>" + new_step.loop);
+                    if ( new_step.name !== '$end' ) {
+                        $("#id_" + new_step.name).html("<span class='glyphicon glyphicon-play'></span>" + new_step.loop);
+                    } else {
+                        // 工步结束
+                        $("#id_" + old_step.name).html("<span class='glyphicon glyphicon-stop'></span>" + new_step.loop);
+                    }
                 }
                 // }}
                 return self.make_response_without_error_package(request, 'copy');

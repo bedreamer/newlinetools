@@ -191,10 +191,31 @@ var NewLine = function (api) {
 
         /*
         * 暂停工步逻辑
+        * 返回全部工步状态
         * */
         steps_pause: function (onsuccess, onerror) {
             var data = {
                 path: '/step/pause/',
+            };
+
+            return this.api.push(data).success(function (api, request, response) {
+                if ( typeof onsuccess === "function" ) {
+                    onsuccess(response.data)
+                }
+            }).error(function (api, request, response) {
+                if ( typeof onerror === "function" ) {
+                    onerror(response)
+                }
+            });
+        },
+
+        /*
+        * 恢复工步逻辑
+        * 返回全部工步状态
+        * */
+        steps_resume: function (onsuccess, onerror) {
+            var data = {
+                path: '/step/resume/',
             };
 
             return this.api.push(data).success(function (api, request, response) {

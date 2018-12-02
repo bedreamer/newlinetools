@@ -91,6 +91,8 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
             return self.on_step_stop(remote_request)
         elif remote_request.data['path'] == '/step/pause/':
             return self.on_step_pause(remote_request)
+        elif remote_request.data['path'] == '/step/resume/':
+            return self.on_step_resume(remote_request)
         elif remote_request.data['path'] == '/step/reboot/':
             return self.on_step_reboot(remote_request, remote_request.data['entry'])
         else:
@@ -242,6 +244,17 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
         :return: 返回全部工步状态数据
         """
         steps_status = self.solution.steps_pause()
+        default_response = self.make_response_without_error(request, steps_status)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_resume(self, request):
+        """
+        恢复工步
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        steps_status = self.solution.steps_resume()
         default_response = self.make_response_without_error(request, steps_status)
         self.do_response(request, default_response)
         return default_response

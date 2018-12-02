@@ -165,11 +165,13 @@ class Solution:
             step = step.false_step(self.steps)
 
         if step is None:
-            return False
+            self.run_cmommand = 'stop'
+            return True
 
         if step != self.main:
             self.push_step_changed(self.main, step)
             self.main = step.weapons_on()
+            self.newline.sync_value_immediately(self.main)
 
         return True
 
@@ -195,7 +197,18 @@ class Solution:
         return steps
 
     def step_delete(self, step_name):
-        pass
+        with codecs.open(self.control_solution_file_name) as file:
+            steps = json.load(file)
+
+        try:
+            del steps['steps'][step_name]
+        except:
+            pass
+
+        with codecs.open(self.control_solution_file_name, 'w') as file:
+            json.dump(steps, file, indent=2, ensure_ascii=False)
+
+        return steps
 
     def steps_start(self, entry=None):
         """
@@ -206,18 +219,33 @@ class Solution:
         self.name, self.main, self.steps = self.load_from_file(self.control_solution_file_name)
         self.main.weapons_on()
         self.run_cmommand = 'running'
+        return self.steps_status()
 
     def steps_stop(self):
         self.run_cmommand = 'stop'
+        return self.steps_status()
 
     def steps_pause(self):
         self.run_cmommand = 'pause'
+        return self.steps_status()
+
+    def steps_resume(self):
+        self.run_cmommand = 'running'
+        return self.steps_status()
 
     def steps_reboot(self, entry):
-        pass
+        self.name, self.main, self.steps = self.load_from_file(self.control_solution_file_name)
+        for step in self.steps:
+            if step.name == entry:
+                self.main = step
+                break
+
+        self.main.weapons_on()
+        self.run_cmommand = 'running'
+        return self.steps_status()
 
     def steps_status(self):
-        pass
+        return {step.name: vars(step) for step in self.steps if not isinstance(step, EndStep)}
 
     def steps_check(self):
         with codecs.open(self.control_solution_file_name) as file:

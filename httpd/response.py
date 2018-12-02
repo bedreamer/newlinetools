@@ -290,7 +290,7 @@ class HttpResponseWebSocket(HttpResponseBasic):
 
             all_bytes = [b ^ mask[i % len(mask)] for i, b in enumerate(payload)]
             origin = struct.pack("%dB" % len(all_bytes), *all_bytes)
-            print("op:", opcode, "len:", pack_len, origin)
+            #print("op:", opcode, "len:", pack_len, origin)
 
             if opcode == 0x01:
                 self.on_text_frame(origin)

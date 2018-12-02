@@ -21,21 +21,6 @@
       "true": "$auto",
       "false": "$auto"
     },
-    "step2": {
-      "mode": "自动模式",
-      "liuliang": 20,
-      "wendu": 20,
-      "jiaregonglv": -1,
-      "xunhuan": "内循环",
-      "ttl": 3600,
-      "tiaojian": [
-        "newline.temp",
-        ">",
-        "100"
-      ],
-      "true": "$auto",
-      "false": "$auto"
-    },
     "step3": {
       "mode": "自动模式",
       "liuliang": 30,
@@ -65,10 +50,10 @@
       "tiaojian": [
         "self.loop",
         ">=",
-        "900000"
+        "10"
       ],
       "true": "$auto",
-      "false": "step3"
+      "false": "step1"
     },
     "step5": {
       "mode": "自动模式",
@@ -82,7 +67,7 @@
         ">=",
         "10"
       ],
-      "true": "$auto",
+      "true": "step1",
       "false": "step1"
     }
   }
