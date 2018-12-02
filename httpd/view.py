@@ -138,7 +138,7 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
         """
         bms_conditions_map = self.bms.get_conditions_map()
         newline_conditions_map = self.newline.get_conditions_map()
-        step_conditions_map = {'self.loop': 'self.loop'}
+        step_conditions_map = {'self.loop': 'self.loop', 'True': 'True', 'False': 'False'}
 
         conditions_map = dict(bms_conditions_map, **newline_conditions_map, **step_conditions_map)
         default_response = self.make_response_without_error(request, conditions_map)

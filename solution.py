@@ -253,9 +253,34 @@ class Solution:
 
         for name, step in steps['steps'].items():
             if step['true'] != '$auto' and step['true'] not in steps['steps']:
-                return "".join(["工步=", name, "的 `匹配`跳转目标:", step['true'], "不存在"]), name
+                return "".join(["工步=", name, "的 `匹配` 跳转目标:", step['true'], "不存在"]), name
 
             if step['false'] != '$auto' and step['false'] not in steps['steps']:
-                return "".join(["工步=", name, "的 `不匹配`跳转目标:", step['false'], "不存在"]), name
+                return "".join(["工步=", name, "的 `不匹配` 跳转目标:", step['false'], "不存在"]), name
+
+            if len(step['tiaojian']) not in {3, 7}:
+                return "".join(["工步=", name, "的判定条件个数错误!"]), name
+
+            try:
+                newline = self.newline.pack_all()
+                bms = self.bms.pack_all()
+
+                class TesterME:
+                    def __init__(self, newline, bms):
+                        self.loop = 0
+                        self.bms = bms
+                        self.newline = newline
+
+                    def check(self):
+                        bms = self.bms
+                        newline = self.newline
+                        eval(" ".join(step['tiaojian']))
+
+                tester = TesterME(newline, bms)
+                tester.check()
+            except SyntaxError:
+                return "".join(["工步=", name, "的判定条件语法错误!"]), name
+            except AttributeError as e:
+                return "".join(["工步=", name, "的判定条件属性筛选错误!"]), name
 
         return True, ''
