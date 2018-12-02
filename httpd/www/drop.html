@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/js/jquery.js"></script>
+</head>
+<body>
+    <select id="id_logic">
+        <option value="">N/A</option>
+        <option value="or">OR</option>
+        <option value="and">AND</option>
+    </select>
+    <button onclick="$('#id_logic').val('');">选择N/A</button>
+    <button onclick="$('#id_logic').val('or');">选择OR</button>
+    <button onclick="$('#id_logic').val('and');">选择AND</button>
+    <button onclick="alert($('#id_logic').val());">读取当前值</button>
+
+    <hr>
+    <select id="id_condition">
+        <option value="">N/A</option>
+        <option value="bms.temp">bms.温度</option>
+        <option value="bms.voltage">bms.电压</option>
+        <option value="bms.max_temp">bms.最高温度</option>
+        <option value="bms.min_temp">bms.最低温度</option>
+        <option value="newline.flow">newline.流量</option>
+        <option value="newline.temp">newline.温度</option>
+        <option value="self.loop">self.loop</option>
+        <option value="True">True</option>
+        <option value="False">False</option>
+    </select>
+    <button onclick="$('#id_condition').val('');">选择N/A</button>
+    <button onclick="$('#id_condition').val('bms.temp');">选择bms.温度</button>
+    <button onclick="$('#id_condition').val('newline.flow');">选择newline.流量</button>
+    <button onclick="$('#id_condition').val('True');">选择True</button>
+    <button onclick="alert($('#id_condition').val());">读取当前值</button>
+
+</body>
+</html>
