@@ -181,6 +181,8 @@ class Solution:
         with codecs.open(self.control_solution_file_name) as file:
             steps = json.load(file)
 
+        steps_dict = {key: steps['steps'][key] for key in sorted(steps['steps'])}
+        steps['steps'] = steps_dict
         if name is None:
             return steps
         elif name in steps['steps']:

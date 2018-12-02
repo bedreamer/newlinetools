@@ -21,6 +21,21 @@
       "true": "$auto",
       "false": "$auto"
     },
+    "step4": {
+      "mode": "自动模式",
+      "liuliang": null,
+      "wendu": null,
+      "jiaregonglv": null,
+      "xunhuan": null,
+      "ttl": -1,
+      "tiaojian": [
+        "self.loop",
+        ">=",
+        "10"
+      ],
+      "true": "$auto",
+      "false": "step1"
+    },
     "step3": {
       "mode": "自动模式",
       "liuliang": 30,
@@ -39,21 +54,6 @@
       ],
       "true": "$auto",
       "false": "$auto"
-    },
-    "step4": {
-      "mode": "自动模式",
-      "liuliang": null,
-      "wendu": null,
-      "jiaregonglv": null,
-      "xunhuan": null,
-      "ttl": -1,
-      "tiaojian": [
-        "self.loop",
-        ">=",
-        "10"
-      ],
-      "true": "$auto",
-      "false": "step1"
     },
     "step5": {
       "mode": "自动模式",
