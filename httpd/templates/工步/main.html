@@ -5,9 +5,74 @@
     <title>工步编辑页面</title>
     {% include "base-head.html" %}
     <script>
+        var api = WsApi('/newline/step/', 'onlwe.com:8888');
+        var newline = NewLine(api);
+
+        api.ready(function () {
+            // 用这个接口可以获取工步列表
+            newline.get_steps(function (data) {
+                console.log('get_steps success return:', data)
+            }, function (response) {
+                console.log('get_steps return fail, response=', response)
+            });
+        });
+
+        api.ready(function () {
+            // 用这个接口可以获取判定条件列表
+            newline.get_all_supported_conditions(function (data) {
+                console.log('get_all_supported_conditions success return:', data)
+            }, function (response) {
+                console.log('get_all_supported_conditions return fail, response=', response)
+            });
+        });
+
+        api.ready(function () {
+            // 用这个接口可以获取指定名称的工步
+            newline.get_single_step('step1', function (data) {
+                console.log('get_single_step success return:', data)
+            }, function (response) {
+                console.log('get_single_step return fail, response=', response)
+            });
+        });
+
+        api.ready(function () {
+            // 用这个接口可以将工步保存为指定名称
+            var step = {
+              "mode": "自动模式",
+              "liuliang": 34,
+              "wendu": 56,
+              "jiaregonglv": null,
+              "xunhuan": null,
+              "ttl": -1,
+              "tiaojian": ["bms.temp", ">=", "10"],
+              "true": "$auto",
+              "false": "step1"
+            };
+            newline.step_save('step5', step, function (data) {
+                console.log('step_save success return:', data)
+            }, function (response) {
+                console.log('step_save return fail, response=', response)
+            });
+        });
+
+        api.ready(function () {
+            newline.steps_check(function (data) {
+                console.log('check_steps success return:', data)
+            }, function (response) {
+                console.log('check_steps return fail, response=', response)
+            })
+        });
+
+        api.ready(function () {
+            newline.steps_status(function (data) {
+                console.log('steps_status success return:', data)
+            }, function (response) {
+                console.log('steps_status return fail, response=', response)
+            })
+        });
 
         function append_step_to_table(name, step) {
-            var html = '<tr class="text-center">';
+            var html = '<tr class="text-center ' + name + '">';
             html += '<td id="id_' + name + '">-</td>';
             html += '<td>' + name + '</td>';
             html += '<td>' + step.mode + '</td>';
@@ -19,10 +84,58 @@
             html += '<td>' + step.tiaojian.join(' ') + '</td>';
             html += '<td>' + step.true + '</td>';
             html += '<td>' + step.false + '</td>';
-            html += '<td><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>&nbsp;<button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span></button></td>';
+            html += '<td><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>&nbsp;';
+            html += '<button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span></button></td>';
             html += '</tr>';
 
             $("#id_steps_list").append(html);
+        }
+        function check_all_steps() {
+            newline.steps_check(function (data) {
+                console.log('steps_check success return:', data);
+                $("tr").removeClass("danger");
+                $(".step_check_fail_reason").html('工步文件无误!');
+            }, function (response) {
+                var name = response.data;
+                $("." + name).addClass("danger");
+                $(".step_check_fail_reason").html(response.reason);
+                console.log('steps_check return fail, response=', response)
+            });
+        }
+
+        function start_steps() {
+            newline.steps_check(function (data) {
+                console.log('steps_check success return:', data);
+                $("tr").removeClass("danger");
+                $(".step_check_fail_reason").html('&nbsp;');
+
+                newline.steps_start("step1", function (data) {
+                    console.log('steps_start success return:', data);
+                }, function (response) {
+                    console.log('steps_start return fail, response=', response)
+                });
+            }, function (response) {
+                var name = response.data;
+                $("." + name).addClass("danger");
+                $(".step_check_fail_reason").html(response.reason);
+                console.log('steps_check return fail, response=', response)
+            });
+        }
+
+        function pause_steps() {
+            newline.steps_pause(function (data) {
+                console.log('steps_pause success return:', data);
+            }, function (response) {
+                console.log('steps_pause return fail, response=', response)
+            });
+        }
+
+        function stop_steps() {
+            newline.steps_stop(function (data) {
+                console.log('steps_stop success return:', data);
+            }, function (response) {
+                console.log('steps_stop return fail, response=', response)
+            });
         }
 
         $(document).ready(function () {
@@ -33,6 +146,8 @@
                     for ( step in data.steps ) {
                         append_step_to_table(step, data.steps[step]);
                     }
+
+                    check_all_steps();
                 }, function (response) {
                     console.log('get_steps return fail, response=', response)
                 });
@@ -70,7 +185,18 @@
 
     <div class="container">
         <table class="table table-bordered table-striped table-responsive" id="id_steps_list">
-            <caption>当前可编辑工步列表</caption>
+            <caption>
+                <div class="row">
+                    <div class="col-xs-6">当前可编辑工步列表</div>
+                    <div class="col-xs-6 text-right">
+                        <a class="btn btn-default btn-xs" onclick="javascript:start_steps()">开始</a>
+                        <a class="btn btn-default btn-xs" onclick="javascript:pause_steps()">暂停</a>
+                        <a class="btn btn-default btn-xs" onclick="javascript:stop_steps()">停止</a>
+                        <a class="btn btn-default btn-xs" onclick="javascript:check_all_steps()">重启</a>
+                        <a class="btn btn-default btn-xs" onclick="javascript:check_all_steps()">检查</a>
+                    </div>
+                </div>
+            </caption>
             <tr>
                 <th rowspan="2"><br>执行状态</th>
                 <th rowspan="2"><br>工步编号</th>
@@ -89,6 +215,9 @@
                 <th>匹配</th>
             </tr>
         </table>
+        <div class="row">
+            <div class="col-xs-12 text-danger step_check_fail_reason">&nbsp;</div>
+        </div>
         <div class="row">
             <div class="col-xs-12">
                 <div class="text-danger">说明:</div>

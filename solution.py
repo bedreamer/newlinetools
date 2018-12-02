@@ -84,10 +84,19 @@ class Solution:
         self.bms = bms
         self.newline = newline
         self.control_solution_file_name = control_solution_file_name
-        self.name, self.main, self.steps = None, None, None
+        self.name, self.main, self.steps = self.load_from_file(self.control_solution_file_name)
 
         self.run_cmommand = 'stop'
         self.ui_wsapi = dict()
+
+    def is_stopped(self):
+        return True if self.run_cmommand == 'stop' else False
+
+    def is_paused(self):
+        return True if self.run_cmommand == 'pause' else False
+
+    def is_running(self):
+        return True if self.run_cmommand == 'running' else False
 
     def register_ui(self, path, wsapi):
         print("+ register", path, wsapi)
@@ -105,7 +114,7 @@ class Solution:
 
     def push_step_changed(self, old_step, new_step):
         try:
-            wsapi_list = self.ui_wsapi['/newline/']
+            wsapi_list = self.ui_wsapi['/newline/step/']
         except KeyError:
             wsapi_list = list()
 
@@ -139,10 +148,10 @@ class Solution:
 
     def run_step_forward(self):
         if self.run_cmommand == 'stop':
-            return
+            return True
 
         if self.run_cmommand == 'pause':
-            return
+            return True
 
         bms = self.bms.pack_all()
         newline = self.newline.pack_all()
@@ -185,9 +194,18 @@ class Solution:
 
         return steps
 
+    def step_delete(self, step_name):
+        pass
+
     def steps_start(self, entry=None):
+        """
+        启动工步，重新加载工步文件并启动
+        :param entry:
+        :return:
+        """
         self.name, self.main, self.steps = self.load_from_file(self.control_solution_file_name)
         self.main.weapons_on()
+        self.run_cmommand = 'running'
 
     def steps_stop(self):
         self.run_cmommand = 'stop'
@@ -202,4 +220,14 @@ class Solution:
         pass
 
     def steps_check(self):
-        pass
+        with codecs.open(self.control_solution_file_name) as file:
+            steps = json.load(file)
+
+        for name, step in steps['steps'].items():
+            if step['true'] != '$auto' and step['true'] not in steps['steps']:
+                return "".join(["工步=", name, "的 `匹配`跳转目标:", step['true'], "不存在"]), name
+
+            if step['false'] != '$auto' and step['false'] not in steps['steps']:
+                return "".join(["工步=", name, "的 `不匹配`跳转目标:", step['false'], "不存在"]), name
+
+        return True, ''

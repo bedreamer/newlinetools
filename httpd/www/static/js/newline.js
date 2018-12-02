@@ -92,6 +92,27 @@ var NewLine = function (api) {
         },
 
         /*
+        * 删除工步
+        * name: 工步名称，eg. step1, step2, step3....
+        * **/
+        step_delete: function (name, onsuccess, onerror) {
+            var data = {
+                path: '/step/delete/',
+                name: name,
+            };
+
+            return this.api.push(data).success(function (api, request, response) {
+                if ( typeof onsuccess === "function" ) {
+                    onsuccess(response.data)
+                }
+            }).error(function (api, request, response) {
+                if ( typeof onerror === "function" ) {
+                    onerror(response)
+                }
+            });
+        },
+
+        /*
         * 检查工步逻辑可用性
         * */
         steps_check: function (onsuccess, onerror) {
@@ -209,67 +230,3 @@ var NewLine = function (api) {
     };
     return newline;
 };
-
-var newline = NewLine(api);
-api.ready(function () {
-    // 用这个接口可以获取工步列表
-    newline.get_steps(function (data) {
-        console.log('get_steps success return:', data)
-    }, function (response) {
-        console.log('get_steps return fail, response=', response)
-    });
-});
-
-api.ready(function () {
-    // 用这个接口可以获取判定条件列表
-    newline.get_all_supported_conditions(function (data) {
-        console.log('get_all_supported_conditions success return:', data)
-    }, function (response) {
-        console.log('get_all_supported_conditions return fail, response=', response)
-    });
-});
-
-api.ready(function () {
-    // 用这个接口可以获取指定名称的工步
-    newline.get_single_step('step1', function (data) {
-        console.log('get_single_step success return:', data)
-    }, function (response) {
-        console.log('get_single_step return fail, response=', response)
-    });
-});
-
-api.ready(function () {
-    // 用这个接口可以将工步保存为指定名称
-    var step = {
-      "mode": "自动模式",
-      "liuliang": 34,
-      "wendu": 56,
-      "jiaregonglv": null,
-      "xunhuan": null,
-      "ttl": -1,
-      "tiaojian": ["bms.temp", ">=", "10"],
-      "true": "$auto",
-      "false": "step1"
-    };
-    newline.step_save('step5', step, function (data) {
-        console.log('step_save success return:', data)
-    }, function (response) {
-        console.log('step_save return fail, response=', response)
-    });
-});
-
-api.ready(function () {
-    newline.steps_check(function (data) {
-        console.log('check_steps success return:', data)
-    }, function (response) {
-        console.log('check_steps return fail, response=', response)
-    })
-});
-
-api.ready(function () {
-    newline.steps_status(function (data) {
-        console.log('steps_status success return:', data)
-    }, function (response) {
-        console.log('steps_status return fail, response=', response)
-    })
-});

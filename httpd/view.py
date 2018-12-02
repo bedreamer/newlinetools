@@ -12,7 +12,7 @@ import json
 
 @path.route(path='/', method=['GET'])
 def index(request):
-    return render(request, "启动页/main.html", {})
+    return HttpResponseRedirect("/steps/editor/")
 
 
 @path.route(path='/steps/editor/', method=['GET'])
@@ -55,7 +55,7 @@ class WebSocketEcho(HttpResponseWebSocket):
 
 class WebSocketNewLine(wsapi.WsApiGateWay):
     def __init__(self, request):
-        self.wsapi_path = '/newline/'
+        self.wsapi_path = '/newline/step/'
         super().__init__(request)
         self.bms, self.newline, self.solution = self.request.kwargs['request_ext_param']
         self.solution.register_ui(self.wsapi_path, self)
@@ -78,7 +78,21 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
 
     def on_push_request(self, remote_request):
         if remote_request.data['path'] == '/step/save/':
-            return self.on_save_step(remote_request, remote_request.data['name'], remote_request.data['data'])
+            return self.on_step_save(remote_request, remote_request.data['name'], remote_request.data['data'])
+        elif remote_request.data['path'] == '/step/delete/':
+            return self.on_step_delete(remote_request, remote_request.data['name'])
+        elif remote_request.data['path'] == '/step/check/':
+            return self.on_step_check(remote_request)
+        elif remote_request.data['path'] == '/step/status/':
+            return self.on_step_status(remote_request)
+        elif remote_request.data['path'] == '/step/start/':
+            return self.on_step_start(remote_request, remote_request.data['entry'])
+        elif remote_request.data['path'] == '/step/stop/':
+            return self.on_step_stop(remote_request)
+        elif remote_request.data['path'] == '/step/pause/':
+            return self.on_step_pause(remote_request)
+        elif remote_request.data['path'] == '/step/reboot/':
+            return self.on_step_reboot(remote_request, remote_request.data['entry'])
         else:
             default_response = self.make_response_without_error(remote_request, None)
             self.do_response(remote_request, default_response)
@@ -129,7 +143,7 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
         self.do_response(request, default_response)
         return default_response
 
-    def on_save_step(self, request, name, step):
+    def on_step_save(self, request, name, step):
         """
         保存单步工步 /step/save/
         :param request: wsapi request对象
@@ -137,9 +151,109 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
         :param step: 工步对象
         :return: 全部工步对象
         """
+        if self.solution.is_stopped() is False:
+            default_response = self.make_response_with_error(request, code=1001, reason="工步未停止", data=None)
+            self.do_response(request, default_response)
+            return default_response
+
         self.solution.save_solution_single_step(name, step)
+
         solution_step = self.solution.get_solution_steps_as_json()
         default_response = self.make_response_without_error(request, solution_step)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_delete(self, request, step_name):
+        """
+        删除指定的工步 /steps/delete/
+        :param request: wsapi request对象
+        :return: 全部工步对象
+        """
+        if self.solution.is_stopped() is False:
+            default_response = self.make_response_with_error(request, code=1001, reason="工步未停止", data=None)
+            self.do_response(request, default_response)
+            return default_response
+
+        self.solution.step_delete(step_name)
+
+        solution_step = self.solution.get_solution_steps_as_json(name=None)
+        default_response = self.make_response_without_error(request, solution_step)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_check(self, request):
+        """
+        检查现有工步是否正确
+        :param request: wsapi request对象
+        :return: 返回全部工步列表
+        """
+        result_or_reason, step_name_if_error = self.solution.steps_check()
+        if result_or_reason in {'', None, True}:
+            solution_step = self.solution.get_solution_steps_as_json(name=None)
+            default_response = self.make_response_without_error(request, solution_step)
+        else:
+            default_response = self.make_response_with_error(request, code=1001, reason=result_or_reason, data=step_name_if_error)
+
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_status(self, request):
+        """
+        获取工步状态数据
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        steps_status = self.solution.steps_status()
+        default_response = self.make_response_without_error(request, steps_status)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_start(self, request, entry):
+        """
+        启动工步
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        if self.solution.is_running():
+            default_response = self.make_response_with_error(request, code=1002, reason="工步已经启动", data=None)
+            self.do_response(request, default_response)
+            return default_response
+
+        steps_status = self.solution.steps_start(entry)
+        default_response = self.make_response_without_error(request, steps_status)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_stop(self, request):
+        """
+        停止工步
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        steps_status = self.solution.steps_stop()
+        default_response = self.make_response_without_error(request, steps_status)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_pause(self, request):
+        """
+        暂停工步
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        steps_status = self.solution.steps_pause()
+        default_response = self.make_response_without_error(request, steps_status)
+        self.do_response(request, default_response)
+        return default_response
+
+    def on_step_reboot(self, request, entry):
+        """
+        重启工步
+        :param request: wsapi request对象
+        :return: 返回全部工步状态数据
+        """
+        steps_status = self.solution.steps_reboot(entry)
+        default_response = self.make_response_without_error(request, steps_status)
         self.do_response(request, default_response)
         return default_response
 
@@ -167,7 +281,7 @@ def live(request):
     return WebSocketEcho(request)
 
 
-@path.route(path='/newline/', method=['GET'])
+@path.route(path='/newline/step/', method=['GET'])
 def live(request):
     try:
         if request.headers['Upgrade'] != 'websocket':

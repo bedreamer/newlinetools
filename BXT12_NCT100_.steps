@@ -65,10 +65,10 @@
       "tiaojian": [
         "self.loop",
         ">=",
-        "10000"
+        "900000"
       ],
       "true": "$auto",
-      "false": "step1"
+      "false": "step3"
     },
     "step5": {
       "mode": "自动模式",

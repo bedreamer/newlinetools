@@ -18,9 +18,10 @@ function get_current_datetime() {
     return date + time;
 }
 
-var WsApi = function (ws_url, page_url) {
+var WsApi = function (ws_url, host) {
     return {
         ws: null,
+        host: host === undefined ? "127.0.0.1:8888" : host,
         support_command_list: ['ping', 'init', 'print', 'push', 'query', 'rebase', 'debug', 'yt', 'yk', 'href'],
         support_status_list: ['ok', 'error'],
 
@@ -60,7 +61,7 @@ var WsApi = function (ws_url, page_url) {
 
         // 打开websocket通道
         open: function (url) {
-            this.ws = new WebSocket('ws://' + window.location.host + ws_url);
+            this.ws = new WebSocket('ws://' + this.host + ws_url);
             // 在onmessage和onclose函数中this对象是ws,
             // 为了能在on_message和on_close中使用WsAPi对象，需要在这里将对象本身this添加到ws对象中。
             this.ws.self = this;
@@ -291,5 +292,3 @@ var WsApi = function (ws_url, page_url) {
         }
     }.open(ws_url);
 };
-
-var api = WsApi('/newline/');
