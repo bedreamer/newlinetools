@@ -1,5 +1,6 @@
 var NewLine = function (api) {
     var newline = {
+        version: "1.1",
         api: api,
         host: '127.0.0.1:8000',
 

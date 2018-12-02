@@ -21,6 +21,7 @@ function get_current_datetime() {
 var WsApi = function (ws_url, host) {
     return {
         ws: null,
+        version: "1.1",
         host: host === undefined ? "127.0.0.1:8888" : host,
         support_command_list: ['ping', 'init', 'print', 'push', 'query', 'rebase', 'debug', 'yt', 'yk', 'href'],
         support_status_list: ['ok', 'error'],
