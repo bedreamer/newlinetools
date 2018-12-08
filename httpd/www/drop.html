@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="/static/js/jquery.js"></script>
+    <style>
+        @keyframes myfirst
+        {
+            0%   {border-color: red yellow yellow yellow;}
+            10%  {border-color: yellow red yellow yellow;}
+            20%  {border-color: yellow yellow red yellow;}
+            30%  {border-color: yellow yellow yellow red;}
+            40% {border-color: red yellow yellow yellow;}
+            50%   {border-color: red yellow yellow yellow;}
+            60%  {border-color: yellow red yellow yellow;}
+            70%  {border-color: yellow yellow red yellow;}
+            80%  {border-color: yellow yellow red yellow;}
+            90%   {border-color: yellow yellow yellow red;}
+            100%  {border-color: yellow red yellow yellow;}
+        }
+        .spin-circle {
+            border-width: 20px;
+            border-style: solid;
+            border-radius: 20px;
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            border-color: yellow blue green red;
+            animation: myfirst 0.5s linear 0s infinite alternate;
+        }
+    </style>
 </head>
 <body>
     <select id="id_logic">
@@ -34,6 +60,8 @@
     <button onclick="$('#id_condition').val('newline.flow');">选择newline.流量</button>
     <button onclick="$('#id_condition').val('True');">选择True</button>
     <button onclick="alert($('#id_condition').val());">读取当前值</button>
+
+    <div class="spin-circle"></div>
 
 </body>
 </html>

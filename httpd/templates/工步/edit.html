@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工步列表增改删界面</title>
+    {% include "base-head.html" %}
+	<script src="/static/js/wsapi.js"></script>
+	<script src="/static/js/newline.js"></script>
+    <style>
+        select {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 30px;
+        }
+
+        option {
+            text-align: right;
+        }
+    </style>
+	
+	<script>
+		var api = WsApi('/newline/step/', window.location.host);
+        var newline = NewLine(api);
+	//页面刷新生成表格
+		$(document).ready(function () {
+            api.ready(function () {
+               dynamic_list()
+            });
+        });
+	//整理下发数据
+		function distributed_data(){
+			step = String(parseFloat(document.getElementById('step').value)); 			//步数（字符串）						
+			work_pattern = document.getElementById('work_pattern').value;
+			if ( work_pattern === '' ) {
+			    alert("请选择工作模式..");
+			    return;
+			}
+
+			value = document.getElementById('temperature').value;
+			if ( value === '' ) {
+			    temperature = null;
+			} else {
+                temperature = parseFloat(value); 		//温度（数字）
+            }
+
+			value = document.getElementById('flow').value;
+			if ( value === '' ) {
+			    flow = null;
+			} else {
+				flow = parseFloat(value); 						//流量（数字）
+			}
+
+			value = document.getElementById('time').value;
+			if ( value === '' ) {
+				ttl = -1;
+			} else {
+                ttl = parseFloat(value) * 60; 					//时间间隔（数字）
+            }
+
+			value = document.getElementById('cyclical_pattern').value;
+			if ( value === '' ) {
+			    alert("请选择循环方式..");
+				return;
+			} else {
+			    cyclical_pattern = value;
+			}
+
+
+			value = document.getElementById('comparison_other1').value;
+			if ( value === 'N/A' ) {
+			    comparison_other1 = '';
+			} else {
+			    comparison_other1 = value;
+			}
+
+			value = document.getElementById('symbol1').value;
+			if ( value === 'N/A' ) {
+			    symbol1 = '';
+			} else {
+			    symbol1 = value;
+			}
+			if ( symbol1 === '' && comparison_other1 !== '' ) {
+			    alert("第一个判断条件异常..");
+				return;
+			}
+
+			value = document.getElementById('condition1').value;
+			if ( symbol1 === '' && value === '' ) {
+			    alert("条件值错误, 不需要比较值?");
+			    return;
+			} else if ( symbol1 === '' && value === '0' ) {
+			    condition1 = '';
+			} else {
+			    condition1 = value;
+			}
+
+			// and or N/A
+			value = document.getElementById('relation').value;
+			if ( value === '' || value === 'N/A' ) {
+			    relation = '';
+			} else {
+			    realation = value;
+			}
+
+			value = document.getElementById('comparison_other2').value;
+			if ( value === 'N/A' ) {
+			    comparison_other2 = '';
+			} else {
+			    comparison_other2 = value;
+			}
+
+			value = document.getElementById('symbol2').value;
+			if ( value === 'N/A' ) {
+			    symbol2 = '';
+			} else {
+			    symbol2 = value;
+			}
+			if ( symbol2 === '' && comparison_other2 !== '' ) {
+			    alert("第二个判断条件异常..");
+				return;
+			}
+
+			value = document.getElementById('condition2').value;
+			if ( symbol2 === '' && value === '' ) {
+			    alert("条件值错误, 不需要比较值?");
+			    return;
+			} else if ( symbol2 === '' && value === '0' ) {
+			    condition2 = '';
+			} else {
+			    condition2 = value;
+			}
+
+			stepes = String(parseFloat(document.getElementById('stepes').value)); 			//跳转地址（字符串）
+			stepes = "step" + stepes;			
+			//把上面拿到的数据写到表里
+			var stepdata = {
+				"mode": work_pattern,			//工作模式
+				"liuliang": flow,				//流量
+				"wendu": temperature,			//温度
+				"jiaregonglv": null,			//加热功率
+				"xunhuan": cyclical_pattern,	//循环方式
+				"ttl": ttl,					    //执行时间
+				"tiaojian": [comparison_other1, symbol1, condition1, relation, comparison_other2, symbol2, condition2],//跳转条件
+				"true": stepes,			//1. 判定条件为 ·真·， 默认跳转到下一步，或跳转至指定步骤
+				"false": "$auto"			//2. 判定条件为 ·假·，默认继续执行当前工步，或跳转至指定步骤
+			};
+			// 数据推送
+			newline.step_save("step" + step, stepdata, function (data) {
+                dynamic_list()
+            }, function (response) {
+                //console.log('step_save return fail, response=', response)
+            });
+		}
+	//动态生成表
+		function dynamic_list(){
+			var mycars = new Array()
+			var rows = 0;
+			var i = 1;
+			mycars[ 0] = "工步编号"
+			mycars[ 1] = "工步名称"
+			mycars[ 2] = "运行时间"
+			mycars[ 3] = "流量设定"
+			mycars[ 4] = "温度设定"
+			mycars[ 5] = "循环模式"
+			mycars[ 6] = "跳转条件1"
+			mycars[ 7] = "逻辑关系"
+			mycars[ 8] = "跳转条件2"
+			mycars[ 9] = "跳转步骤"
+			mycars[10] = "工步编辑"
+			var return_data = "";
+			newline.get_steps(function (data) {
+				cols=11;
+				div1=document.getElementById('div1');
+				for ( step in data.steps ) {    
+					rows = rows + 1;
+                }
+				heights = 30*(rows+1);
+				height = String(heights);
+				var tab="<table border=1 width=1100 height=" + height + " cellspacing=0 cellpadding=10 align=\"center\" bgcolor=\"aqua\")>";
+				tab+='<tr align="center" valign="middle">';
+				for(var j=0;j<cols;j++){
+					tab+="<td><b>"+mycars[j]+"<b></td>"
+				}
+				tab+='</tr>'; 
+				for ( step in data.steps ) {	
+					tab+='<tr align="center" valign="middle">';
+					tab+="<td>"+String(i)+"</td>";
+					tab+="<td>"+data['steps']['step'+ String(i)]['mode']+"</td>";
+					tab+="<td>"+data['steps']['step'+ String(i)]['ttl']+"</td>";
+					tab+="<td>"+data['steps']['step'+ String(i)]['liuliang']+"</td>";
+					tab+="<td>"+data['steps']['step'+ String(i)]['wendu']+"</td>";
+					circulation = data['steps']['step'+ String(i)]['xunhuan'];
+					if (circulation == ""){
+						tab+="<td>" + '-' + "</td>";
+					}else{
+						tab+="<td>" + circulation + "</td>";
+					}
+					comparison_other1 = data['steps']['step'+ String(i)]['tiaojian'][0];
+					symbol1 = data['steps']['step'+ String(i)]['tiaojian'][1];
+					condition1 = data['steps']['step'+ String(i)]['tiaojian'][2];
+					if((comparison_other1 == "")||(symbol1 == "")||(condition1 == 0)){
+						tab+="<td>" + '-' + "</td>";
+					}else{
+						tab+="<td>" + comparison_other1 + ' ' + symbol1 + ' ' + condition1 + "</td>";
+					}
+					relationship = data['steps']['step'+ String(i)]['tiaojian'][3];
+					if (relationship == ""){
+						tab+="<td>" + '-' + "</td>";
+					}else {
+						tab+="<td>" + relationship + "</td>";
+					}
+					comparison_other2 = data['steps']['step'+ String(i)]['tiaojian'][4];
+					symbol2 = data['steps']['step'+ String(i)]['tiaojian'][5];
+					condition2 = data['steps']['step'+ String(i)]['tiaojian'][6];
+					if((comparison_other2 == "")||(symbol2 == "")||(condition2 == 0)){
+						tab+="<td>" + '-' + "</td>";
+					}else{
+						tab+="<td>" + comparison_other2 + ' ' + symbol2 + ' ' + condition2 + "</td>";
+					}
+					tab+="<td>"+data['steps']['step'+ String(i)]['true']+"</td>";
+					tab+= '<td><button type="button" class="btn btn-xs btn-danger" onClick="javascript:AAA()"><span class="glyphicon glyphicon-remove"></span></button>&nbsp;';
+					tab+= '<button type="button" class="btn btn-xs btn-success" onClick="javascript:edit_data('+ String(i) +')"><span class="glyphicon glyphicon-edit"></span></button></td>';
+					tab+='</tr>'; 
+					i = i+1;
+                }
+				tab+='</table>';
+				div1.innerHTML=tab;
+            }, function (response) {
+               // console.log('get_steps return fail, response=', response)
+            });
+			
+		}
+	//处理编辑函数
+		function edit_data(data){
+			var AAA = data;
+		
+		
+		
+		}
+		
+		
+	//区分工作模式
+		function distinguish_work_pattern(data){
+			var key = "";
+			if (data == ""){
+				key = "";
+			}else if (data == "wums"){
+				key = "";
+			}else if (data == "zdms"){
+				key = "自动模式";
+			}else if (data == "jrms"){
+				key = "加热模式";
+			}else if (data == "zlms"){
+				key = "制冷模式";
+			}else if (data == "djms"){
+				key = "待机模式";
+			}
+			return key;
+		}
+	//区分循环模式
+		function distinguish_cyclical_pattern(data){
+			var key = "";
+			if (data == ""){
+				key = "";
+			}else if (data == "wuhms"){
+				key = "";
+			}else if (data == "nxhms"){
+				key = "内循环";
+			}else if (data == "wxhms"){
+				key = "外循环";
+			}
+			return key;
+		}
+	//区分比较对象
+		function distinguish_comparison_other1(data){
+			var key = "";
+			if (data == ""){
+				key = "";
+			}else if ((data == "wudx1")||(data == "wudx2")){
+				key = "";
+			}else if ((data == "dcwd1")||(data == "dcwd2")){
+				key = "bms.电池温度";
+			}else if ((data == "zgwd1")||(data == "zgwd2")){
+				key = "bms.最高温度";
+			}else if ((data == "zdwd1")||(data == "zdwd2")){
+				key = "bms.最低温度";
+			}else if ((data == "rkwd1")||(data == "rkwd2")){
+				key = "newline.入口温度";
+			}else if ((data == "ckwd1")||(data == "ckwd2")){
+				key = "newline.出口温度";
+			}else if ((data == "fzgl1")||(data == "fzgl2")){
+				key = "newline.负载功率";
+			}else if ((data == "loop1")||(data == "loop2")){
+				key = "self.loop";
+			}
+			return key;
+		}
+	//区分比较符号
+		function distinguish_symbol1(data){
+			var key = "";
+			if (data == ""){
+				key = "";
+			}else if ((data == "wuyu1")||(data == "wuyu2")){
+				key = "";
+			}else if ((data == "deyu1")||(data == "deyu2")){
+				key = ">";
+			}else if ((data == "xiyu1")||(data == "xiyu2")){
+				key = "<";
+			}else if ((data == "dady1")||(data == "dady2")){
+				key = ">=";
+			}else if ((data == "xydy1")||(data == "xydy2")){
+				key = "<=";
+			}else if ((data == "dydy1")||(data == "dydy2")){
+				key = "==";
+			}else if ((data == "budy1")||(data == "budy2")){
+				key = "!=";
+			}
+			return key;
+		}
+	//区分关联关系
+		function distinguish_relation(data){
+			var key = "";
+			if (data == ""){
+				key = "";
+			}else if (data == "wugx"){
+				key = "N/A";
+			}else if (data == "bqgx"){
+				key = "AND";
+			}else if (data == "hzgx"){
+				key = "OR";
+			}
+			return key;
+		}
+	</script>
+	
+</head>
+<body>
+    {% include "base-navbar-top.html" %}
+
+    <div class="container-fluid">
+
+        {% if request.GET.e %}
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong>&nbsp;&nbsp;&nbsp;<span>{{ request.GET.e }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-xs-offset-1 col-xs-10">
+            <div class="row">
+                <h2>
+                    <span class="glyphicon glyphicon-cog text-primary"></span>
+                    手动工步编辑
+                </h2>
+                <hr>
+            </div>
+
+            <form method="post" action="{{ request.path }}">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-2 withunderline">
+                                <h4><span style="font-size:100%" class="label label-success">工 步 编 辑</span></h4>
+                            </div>
+                        </div>
+
+						<!--<div class="row">
+							<table style="border: 1px" border="1" width="1100px" height="100px" cellspacing="0" cellpadding="10" align="center" bgcolor="aqua">
+								<tr align="center" valign="middle">
+									<td><b>序号<b></th>
+									<td><b>工作模式<b></th>
+									<td><b>温度值<b></th>
+									<td><b>流量值<b></th>
+									<td><b>执行时间<b></th>
+									<td><b>循环模式<b></th>
+									<td colspan="3"><b>条件1<b></th>
+									<td><b>逻辑关系<b></th>
+									<td colspan="3"><b>条件2<b></th>
+									<td><b>匹配跳转<b></th>
+								</tr>
+								<tr>
+									<td>
+										<input type="text" value="1" style="width: 40px; text-align: center" id="step">
+									</td>
+									<td>
+										<select id="work_pattern" >
+											<option value="">选择工作模式...</option>
+											<option value="wums">N/A</option>
+											<option value="zdms">自动模式</option>
+											<option value="jrms">加热模式</option>
+											<option value="zlms">制冷模式</option>
+											<option value="djms">待机模式</option>
+										</select>
+									</td>
+									<td>
+										<input type="text" value="0" style="width: 40px; text-align: center" id="temperature">
+									</td>
+									<td>
+										<input type="text" value="0" style="width: 40px; text-align: center" id="flow">
+									</td>
+									<td>
+										<input type="text" value="0" style="width: 60px; text-align: center" id="time">
+									</td>
+									<td>
+										<select id="cyclical_pattern">
+											<option value="">选择循环模式...</option>
+											<option value="wuhms">N/A</option>
+											<option value="nxhms">内循环模式</option>
+											<option value="wxhms">外循环模式</option>
+										</select>
+									</td>
+									<td>
+										<select id="comparison_other1">
+											<option value="">选择比较对象...</option>
+											<option value="wudx1">N/A</option>
+											<option value="dcwd1">bms.电池温度</option>
+											<option value="zgwd1">bms.最高温度</option>
+											<option value="zdwd1">bms.最低温度</option>
+											<option value="rkwd1">newline.入口温度</option>
+											<option value="ckwd1">newline.出口温度</option>
+											<option value="fzgl1">newline.负载功率</option>
+											<option value="loop1">self.loop</option>
+										</select>
+									</td>
+									<td>
+										<select id="symbol1">
+											<option value=""></option>
+											<option value="wuyu1">N/A</option>
+											<option value="deyu1">&gt;</option>
+											<option value="xiyu1">&lt;</option>
+											<option value="dady1">&gt;=</option>
+											<option value="xydy1">&lt;=</option>
+											<option value="dydy1">==</option>
+											<option value="budy1">!=</option>
+										</select>
+									</td>
+									<td>
+										<input type="text" value="0" style="width: 40px; text-align: center" id="condition1"> 
+									</td>
+									<td>
+										<select id="relation">
+											<option value="">选择逻辑关系...</option>
+											<option value="wugx">N/A</option>
+											<option value="bqgx">and</option>
+											<option value="hzgx">or</option>
+										</select>
+									</td>
+									<td>
+										<select id="comparison_other2">
+											<option value="">选择比较对象...</option>
+											<option value="wudx2">N/A</option>
+											<option value="dcwd2">bms.电池温度</option>
+											<option value="zgwd2">bms.最高温度</option>
+											<option value="zdwd2">bms.最低温度</option>
+											<option value="rkwd2">newline.入口温度</option>
+											<option value="ckwd2">newline.出口温度</option>
+											<option value="fzgl2">newline.负载功率</option>
+											<option value="loop2">self.loop</option>
+										</select>
+									</td>
+									<td>
+										<select id="symbol2">
+											<option value=""></option>
+											<option value="wuyu2">N/A</option>
+											<option value="deyu2">&gt;</option>
+											<option value="xiyu2">&lt;</option>
+											<option value="dady2">&gt;=</option>
+											<option value="xydy2">&lt;=</option>
+											<option value="dydy2">==</option>
+											<option value="budy2">!=</option>
+										</select>
+									</td>
+									<td>
+										<input type="text" value="0" style="width: 40px; text-align: center" id="condition2">
+									</td>
+									<td>
+										<input type="text" value="1" style="width: 55px; text-align: center" id="stepes">
+									</td>
+								</tr>
+							</table>					   
+                        </div>
+						
+                    </div>
+                </div>-->
+				
+				<div class="row"><h6>&nbsp;</h6></div>
+				
+                <div class="row">
+					<div class="col-xs-4">
+
+					</div>
+					<div class="col-xs-4"></div>
+					<div class="col-xs-4"></div>
+					<div style="width: 14%" class="col-xs-2">
+						<label>工步编号:&nbsp;</label>
+					</div>
+					<div style="width: 17.8%" class="col-xs-2">
+						<label>工作模式:&nbsp;</label>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<label>温度值:&nbsp;</label>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<label>流量值:&nbsp;</label>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<label>执行时间:&nbsp;</label>
+					</div>
+					<div style="width: 17.8%" class="col-xs-2">
+						<label>循环模式:&nbsp;</label>
+					</div>
+					<div style="width: 14%" class="col-xs-2">
+						<label>匹配跳转:&nbsp;</label>
+					</div>
+				</div>
+
+				<div class="row">
+					<div style="width: 14%" class="col-xs-2">
+						<div class="input-group">
+							<span class="input-group-addon" id="step1">第</span>
+							<input type="text" style="text-align:center" class="form-control" value="1" placeholder="1"  id="step">
+							<span class="input-group-addon" id="step2">步</span>
+						</div>
+					</div>
+					<div style="width: 17.8%" class="col-xs-2">
+						<div class="input-group">
+							<select id="work_pattern" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="N/A">N/A</option>
+								<option value="自动模式">自动</option>
+								<option value="加热模式">加热</option>
+								<option value="制冷模式">制冷</option>
+								<option value="待机模式">待机</option>
+							</select>
+							<span class="input-group-addon" id="name1">模式</span>
+						</div>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						 <div class="input-group">
+							<input type="text" class="form-control" placeholder="0" value="0" id="temperature">
+							<span class="input-group-addon" id="temperature1">℃</span>
+						</div>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="0" value="0" id="flow">
+							<span class="input-group-addon" id="flow1">L/Min</span>
+						</div>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="0" value="0" id="time">
+							<span class="input-group-addon" id="time1">min</span>
+						</div>
+					</div>
+					<div style="width: 17.8%" class="col-xs-2">
+						 <div class="input-group">
+							<select id="cyclical_pattern" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="N/A">N/A</option>
+								<option value="内循环">内循环</option>
+								<option value="外循环">外循环</option>
+							</select>
+							<span class="input-group-addon" id="pattern1">模式</span>
+						</div>
+					</div>
+					<div style="width: 14%" class="col-xs-2">
+						<div class="input-group">
+							<span class="input-group-addon" id="steps1">第</span>
+							<input type="text" style="text-align:center" class="form-control" placeholder="2" value="2" id="stepes">
+							<span class="input-group-addon" id="steps2">步</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="row"><h6>&nbsp;</h6></div>
+
+				<div class="row">	
+					<div style="width: 17.6%" class="col-xs-2">
+						<label>跳转条件1选择:&nbsp;</label>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<label>跳转符号1:&nbsp;</label>
+					</div>
+					<div style="width: 11.5%" class="col-xs-2">
+						<label>跳转条件值1:&nbsp;</label>
+					</div>
+					<div style="width: 17.5%" class="col-xs-2">
+						<label>逻辑关系:&nbsp;</label>
+					</div>
+					<div style="width: 17.6%" class="col-xs-2">
+						<label>跳转条件2选择:&nbsp;</label>
+					</div>
+					<div style="width: 11.5%" class="col-xs-2">
+						<label>跳转符号2:&nbsp;</label>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<label>跳转条件值2:&nbsp;</label>
+					</div>
+				</div>
+
+				<div class="row">
+					<div style="width: 17.6%" class="col-xs-2">
+						<div class="input-group">
+							<select id="comparison_other1" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="N/A">N/A</option>
+								<option value="bms.temp">bms.电池温度</option>
+								<option value="bms.max_temp">bms.最高温度</option>
+								<option value="bms.min_temp">bms.最低温度</option>
+								<option value="newline.in_temp">newline.入口温度</option>
+								<option value="newline.out_temp">newline.出口温度</option>
+								<option value="newline.power">newline.负载功率</option>
+								<option value="self.loop">self.loop</option>
+								<option value="True">总是匹配成功</option>
+								<option value="False">总是匹配失败</option>
+							</select>
+							<span class="input-group-addon" id="condition11">条件</span>
+						</div>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<div class="input-group">
+							<select id="symbol1" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="N/A">N/A</option>
+								<option value=">">&gt;</option>
+								<option value="<">&lt;</option>
+								<option value=">=">&gt;=</option>
+								<option value="<=">&lt;=</option>
+								<option value="==">==</option>
+								<option value="!=">!=</option>
+							</select>
+							<span class="input-group-addon" id="symbol11">符号</span>
+						</div>
+					</div>
+					<div style="width: 11.5%" class="col-xs-2">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="0" value="0" id="condition1">
+							<span class="input-group-addon" id="tj_temperature11">℃</span>
+						</div>
+					</div>
+					<div style="width: 17.5%" class="col-xs-2">
+						<div class="input-group">	
+							<select id="relation" style="padding: 6px 0px" class="form-control">
+								<option id="relationship1" value="">选择...</option>
+								<option id="relationship2" value="N/A">N/A</option>
+								<option id="relationship3" value="and">AND</option>
+								<option id="relationship4" value="or">OR</option>
+							</select>
+							<span class="input-group-addon" id="relation1">条件</span>
+						</div>
+					</div>
+					<div style="width: 17.6%" class="col-xs-2">
+						<div class="input-group">
+							<select id="comparison_other2" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="">选择比较对象...</option>
+								<option value="N/A">N/A</option>
+								<option value="bms.temp">bms.电池温度</option>
+								<option value="bms.max_temp">bms.最高温度</option>
+								<option value="bms.min_temp">bms.最低温度</option>
+								<option value="newline.in_temp">newline.入口温度</option>
+								<option value="newline.out_temp">newline.出口温度</option>
+								<option value="newline.power">newline.负载功率</option>
+								<option value="self.loop">self.loop</option>
+							</select>
+							<span class="input-group-addon" id="condition21">条件</span>
+						</div>
+					</div>
+					<div style="width: 12%" class="col-xs-2">
+						<div class="input-group">
+							<select id="symbol2" style="padding: 6px 0px" class="form-control">
+								<option value="">选择...</option>
+								<option value="N/A">N/A</option>
+								<option value=">">&gt;</option>
+								<option value="<">&lt;</option>
+								<option value=">=">&gt;=</option>
+								<option value="<=">&lt;=</option>
+								<option value="==">==</option>
+								<option value="!=">!=</option>
+							</select>
+							<span class="input-group-addon" id="symbol21">符号</span>
+						</div>
+					</div>
+					<div style="width: 11.5%" class="col-xs-2">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="0" value="0" id="condition2">
+							<span class="input-group-addon" id="tj_temperature21">℃</span>
+						</div>
+					</div>
+				</div>
+				<div class="row"><h6>&nbsp;</h6></div>
+				<!--<div class="row"><h6>&nbsp;</h6></div>-->
+				
+                <div class="row">
+                    <div class="col-xs-offset-3 col-xs-5">
+                        <button type="button" class="btn btn-primary.focus btn-lg btn-block glyphicon " onClick="javascript:distributed_data()">保 存 工 步</button>
+                    </div>
+                </div>
+				
+                <div class="row"><h6>&nbsp;</h6></div>
+				
+				<div class="row">
+                    <div class="col-xs-2 withunderline">
+                        <h4><span style="font-size:100%" class="label label-success">工 步 列 表</span></h4>
+                    </div>
+                </div>
+				
+				<div id="div1"></div>
+				
+				<div class="row"><h6>&nbsp;</h6></div>
+				
+				<div class="row"><h6>&nbsp;</h6></div>
+				
+				<div class="row"><h6>&nbsp;</h6></div>
+
+            </form>
+        </div>
+    </div>
+</body>
+</html>		
+
+
+
+
+
+
+
+
+
+
+
+
+
+

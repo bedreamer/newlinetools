@@ -269,7 +269,7 @@ class Solution:
                 newline = self.newline.pack_all()
                 bms = self.bms.pack_all()
 
-                class TesterME:
+                class StepCheker:
                     def __init__(self, newline, bms):
                         self.loop = 0
                         self.bms = bms
@@ -280,13 +280,15 @@ class Solution:
                         newline = self.newline
                         eval(" ".join(step['tiaojian']))
 
-                tester = TesterME(newline, bms)
+                tester = StepCheker(newline, bms)
                 tester.check()
             except SyntaxError:
                 return "".join(["工步=", name, "的判定条件语法错误!"]), name
             except AttributeError as e:
+                print(e)
                 return "".join(["工步=", name, "的判定条件属性筛选错误!"]), name
             except Exception as e:
+                print(e)
                 return "".join(["工步=", name, "检查失败!"]), name
 
         return True, ''

@@ -4,71 +4,41 @@
   "steps": {
     "step1": {
       "mode": "自动模式",
-      "liuliang": 10,
-      "wendu": 25,
-      "jiaregonglv": -1,
-      "xunhuan": "内循环",
-      "ttl": 3600,
-      "tiaojian": [
-        "newline.flow",
-        ">",
-        "100",
-        "or",
-        "bms.temp",
-        ">",
-        "65"
-      ],
-      "true": "$auto",
-      "false": "$auto"
-    },
-    "step4": {
-      "mode": "自动模式",
-      "liuliang": null,
-      "wendu": null,
+      "liuliang": 0,
+      "wendu": 0,
       "jiaregonglv": null,
-      "xunhuan": null,
+      "xunhuan": "内循环",
       "ttl": -1,
       "tiaojian": [
-        "self.loop",
-        ">=",
-        "10"
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
       ],
-      "true": "$auto",
-      "false": "step1"
-    },
-    "step3": {
-      "mode": "自动模式",
-      "liuliang": 30,
-      "wendu": 15,
-      "jiaregonglv": -1,
-      "xunhuan": "内循环",
-      "ttl": 3600,
-      "tiaojian": [
-        "newline.temp",
-        ">",
-        "100",
-        "and",
-        "newline.flow",
-        ">",
-        "200"
-      ],
-      "true": "$auto",
+      "true": "step2",
       "false": "$auto"
     },
-    "step5": {
+    "step2": {
       "mode": "自动模式",
-      "liuliang": 34,
-      "wendu": 56,
+      "liuliang": 0,
+      "wendu": 0,
       "jiaregonglv": null,
-      "xunhuan": null,
-      "ttl": -1,
+      "xunhuan": "N/A",
+      "ttl": 0,
       "tiaojian": [
-        "bms.temp",
-        ">=",
-        "10"
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
       ],
-      "true": "step1",
-      "false": "step1"
+      "true": "step2",
+      "false": "$auto"
     }
   }
 }

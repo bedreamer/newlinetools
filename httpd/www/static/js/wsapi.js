@@ -70,7 +70,6 @@ var WsApi = function (ws_url, host) {
             this.ws.onmessage = this.on_message;
             this.ws.onclose = this.on_close;
 
-
             return this;
         },
         on_connect: function(e) {

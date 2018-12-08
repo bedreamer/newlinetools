@@ -12,12 +12,22 @@ import json
 
 @path.route(path='/', method=['GET'])
 def index(request):
-    return HttpResponseRedirect("/steps/editor/")
+    return HttpResponseRedirect("/steps/show/")
+
+
+@path.route(path='/steps/show/', method=['GET'])
+def index(request):
+    return render(request, "工步/show.html", {})
 
 
 @path.route(path='/steps/editor/', method=['GET'])
 def index(request):
-    return render(request, "工步/main.html", {})
+    return render(request, "工步/edit.html", {})
+
+
+@path.route(path='/steps/debug/', method=['GET'])
+def index(request):
+    return render(request, "工步/step_set.html", {})
 
 
 class WebSocketEcho(HttpResponseWebSocket):
@@ -94,7 +104,13 @@ class WebSocketNewLine(wsapi.WsApiGateWay):
         elif remote_request.data['path'] == '/step/resume/':
             return self.on_step_resume(remote_request)
         elif remote_request.data['path'] == '/step/reboot/':
-            return self.on_step_reboot(remote_request, remote_request.data['entry'])
+            try:
+                entry = remote_request.data['entry']
+                return self.on_step_reboot(remote_request, entry)
+            except KeyError:
+                default_response = self.make_response_with_error(remote_request, 10002, "重启需要指定入口")
+                self.do_response(remote_request, default_response)
+                return default_response
         else:
             default_response = self.make_response_without_error(remote_request, None)
             self.do_response(remote_request, default_response)
